@@ -3,16 +3,17 @@ import java.io.FileNotFoundException;
 import java.util.Scanner; 
 
 public class Main {
+	Automata miAutomata;
 	public static void main(String[] args) {
-		
 		
 		//ReadFromCMD();
 		System.out.println("####### Input #######");
 		ReadFromFile("test");
-		System.out.println("####### Output #######");
+		
 		
 	}
 	public static void ReadFromFile(String text) {
+		Automata miAutomata;
 		try {
 			File file = new File("src/" + text + ".txt"); 
 			Scanner myReader = new Scanner(file);
@@ -28,22 +29,29 @@ public class Main {
 				String estadosFinales = myReader.nextLine();
 				System.out.println(estadosFinales);
 				
-				String Transicion = myReader.nextLine();
-				System.out.println(Transicion);
+				String transicion = myReader.nextLine();
+				System.out.println(transicion);
 				
 				String palabra = myReader.nextLine();
 				System.out.println(palabra);
 			
+				System.out.println("####### Testing Phase #######");
 			
 				try {
-					Automata miAutomata = new Automata(estados, lenguaje, estadoInicial, estadosFinales);
+					miAutomata = new Automata(estados, lenguaje, estadoInicial, estadosFinales, transicion);
+					System.out.println("####### Output #######");
+					miAutomata.Leer(palabra);
 				} catch (ErrorAutomata e) {
 					System.out.println(e.getMessage());
 				}
 			
 			myReader.close();
+			
+			
+			
 		} catch (FileNotFoundException e) {
 		      System.out.println(e.getMessage());
+		      e.printStackTrace();
 		      
 		}
 		
@@ -62,18 +70,18 @@ public class Main {
 		String lenguaje = myScanner.nextLine();
 		String estadoInicial = myScanner.nextLine();
 		String estadosFinales = myScanner.nextLine();
-		String Transicion = myScanner.nextLine();
+		String transicion = myScanner.nextLine();
 		String palabra = myScanner.nextLine();
 		
 		System.out.println("linea1 is : " + estados);
 		System.out.println("linea1 is : " + lenguaje);
 		System.out.println("linea1 is : " + estadoInicial);
 		System.out.println("linea1 is : " + estadosFinales);
-		System.out.println("linea1 is : " + Transicion);
+		System.out.println("linea1 is : " + transicion);
 		System.out.println("linea1 is : " + palabra);
 		
 		try {
-			Automata miAutomata = new Automata(estados, lenguaje, estadoInicial, estadosFinales);
+			Automata miAutomata = new Automata(estados, lenguaje, estadoInicial, estadosFinales, transicion);
 		} catch (ErrorAutomata e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

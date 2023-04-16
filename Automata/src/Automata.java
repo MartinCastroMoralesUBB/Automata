@@ -7,11 +7,12 @@ public class Automata {
 	private String lenguaje;
 	private String estadoInicial;
 	private String estadosFinales;
+	private String transicion;
 	
 	//Informacion del automata en este instante.
 	private String estadoActual;
 
-	public Automata(String estados, String lenguaje, String estadoInicial, String estadosFinales) throws ErrorAutomata{
+	public Automata(String estados, String lenguaje, String estadoInicial, String estadosFinales, String delta) throws ErrorAutomata{
 		this.Nodos = new ArrayList<Nodo>();
 		
 		this.setEstados(estados);
@@ -20,15 +21,66 @@ public class Automata {
 		
 		this.setLenguaje(lenguaje);
 		this.setEstadoInicial(estadoInicial);
+		System.out.println("estado inicial1 " + estadoInicial + " estado Inicial: " + this.getEstadoInicial());
 		this.setEstadosFinales(estadosFinales);
 		
 		this.crearNodos(this.getEstados(), this.getEstadosFinales());
-		printNodes();
 		
+		this.setTransicion(delta);
+		this.crearDelta(delta);
+		printNodes();
+		//System.out.println("transiciones: " + transicion);
+		
+		
+		
+		
+		
+	}
+	
+	public void Leer(String palabra) {
+		String estadoActual = this.getEstadoInicial();
+		int indexNodo = buscarNodoPorEstado(estadoActual);
+		System.out.println("_" + palabra + estadoActual);
+		for(int i = 0; i < palabra.length(); i++) {
+			OutputStep(estadoActual, palabra, i);
+		}
+	}
+	public void OutputStep(String estadoActual, String palabra, int index) {
+		int indexOffset = index + 1;
+		String start = palabra.substring(0, indexOffset);
+		String end = palabra.substring(indexOffset);
+		String msg = start + "_" + end + estadoActual; 
+		//System.out.println("start: " + start + " end: " + end + " palabra: " + palabra);
+		System.out.println(msg);
+	}
+	
+	public void crearDelta(String delta) {
+		String[] grupoDelta = delta.split(" ");
+		//Ahora grupoDelta (A,0,B)
+		for(int i = 0; i < grupoDelta.length; i++) {
+			
+			String funcion = grupoDelta[i];
+			String nodoInput = String.valueOf(funcion.charAt(1));
+			String nodoOutput = String.valueOf(funcion.charAt(5));
+			String simbolo = String.valueOf(funcion.charAt(3));
+			
+			int indexOfState = buscarNodoPorEstado(nodoInput);
+			
+			Nodos.get(indexOfState).AñadirFuncionTransicion(simbolo, nodoOutput);
+		}
+	}
+	
+	public int buscarNodoPorEstado(String nombreEstado) {
+		for(int i = 0; i < Nodos.size(); i++) {
+			if(Nodos.get(i).nombre.equals(nombreEstado)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 	public void printNodes() {
 		for(int i = 0; i < Nodos.size(); i++) {
-			System.out.println("node: " + Nodos.get(i).nombre + " ¿Es Final? " + Nodos.get(i).esFinal);
+			System.out.println("node: " + Nodos.get(i) + " \n¿Es Final? " + Nodos.get(i).esFinal + "\n");
 		}
 	}
 	
@@ -53,13 +105,13 @@ public class Automata {
 		
 		for(int i = 0; i < sPartida.length; i++) {
 			//System.out.println("array con estados input: " + sPartida[i]);
-			if(!checkIfStateIsIn(sPartida[i], estadosPartida)) {
+			if(!checkIfElementIsIn(sPartida[i], estadosPartida)) {
 				return false;
 			}
 		}
 		return true;
 	}
-	public boolean checkIfStateIsIn(String sToCheck, String[] grupo) {
+	public boolean checkIfElementIsIn(String sToCheck, String[] grupo) {
 		for(int i = 0; i < grupo.length; i++) {
 			
 			//System.out.println("Check State: estado de entrada: " + sPartida[i] + " estado existente: " + estadosPartida[ii]);
@@ -76,7 +128,7 @@ public class Automata {
 		String[] grupoEstadosFinales = estadosFinales.split(" ");
 		for(int i = 0; i < estado.length; i++) {
 			
-			if(checkIfStateIsIn(estado[i], grupoEstadosFinales)) {
+			if(checkIfElementIsIn(estado[i], grupoEstadosFinales)) {
 				esFinal = true;
 			}else {
 				esFinal = false;
@@ -131,6 +183,7 @@ public class Automata {
 		if(!checkIfStateExists(estadoInicial)) {
 			throw new ErrorAutomata(IErrores.ERROR_ESTADO_NO_EXISTE, "Error en la linea 3 \nEstado no existe");
 		}
+		this.estadoInicial = estadoInicial;
 		
 	}
 
@@ -148,6 +201,40 @@ public class Automata {
 		this.estadosFinales = estadosFinales;
 		
 	}
+
+	public String getTransicion() {
+		return transicion;
+	}
+
+	public void setTransicion(String transicion) throws ErrorAutomata {
+		String[] transicionGrupo = transicion.split(" ");
+		
+		for(int i = 0; i < transicionGrupo.length; i++) {
+			String funcion = transicionGrupo[i];
+			if(!(funcion.charAt(0) == '(' && funcion.charAt(2) == ',' && funcion.charAt(4) == ',' && funcion.charAt(6) == ')') ) {
+				throw new ErrorAutomata(IErrores.ERROR_FUNCION_TRANSICION_EN_FORMATO_EQUIVOCADO, "Error En la linea 5\nFuncion Transicion no esta en el formato correcto");
+			}
+			String input = String.valueOf(funcion.charAt(1));
+			String output = String.valueOf(funcion.charAt(5));
+			String[] estadosGrupo = this.getEstados().split(" ");
+			if(!(checkIfElementIsIn(input, estadosGrupo) && checkIfElementIsIn(output, estadosGrupo)) ) {
+				//System.out.println("input: " + input + " output: " + output + " transicion: " + transicion + "transicion[" + i + "]: '" + funcion + "'");
+				throw new ErrorAutomata(IErrores.ERROR_ESTADO_NO_EXISTE, "Error en la linea 5 \nEstado no existe");
+			}
+			String simbolo = String.valueOf(funcion.charAt(3));
+			String[] lenguajeGrupo = this.getLenguaje().split(" ");
+			
+			if(!(checkIfElementIsIn(simbolo, lenguajeGrupo)) ) {
+				throw new ErrorAutomata(IErrores.ERROR_CARACTER_NO_ES_PARTE_DEL_LENGUAJE, "Error en la linea 5\nCaracter no existe");
+			}
+	
+		}
+		
+		this.transicion = transicion;
+		
+	}
+	
+	
 	
 	
 	
