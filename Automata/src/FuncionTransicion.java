@@ -1,10 +1,10 @@
 
 public class FuncionTransicion {
-	String estadoInput;
+	Nodo estadoInput;
 	String simbolo;
-	String output;
+	Nodo output;
 	
-	public FuncionTransicion(String estadoInput, String simbolo, String output) {
+	public FuncionTransicion(Nodo estadoInput, String simbolo, Nodo output) {
 		this.estadoInput = estadoInput;
 		this.simbolo = simbolo;
 		this.output = output;
@@ -12,6 +12,6 @@ public class FuncionTransicion {
 	
 	@Override
 	public String toString() {
-		return "(" + estadoInput + "," + simbolo + "," + output + ")";
+		return "(" + estadoInput.nombre + "," + simbolo + "," + output.nombre + ")";
 	}
 }

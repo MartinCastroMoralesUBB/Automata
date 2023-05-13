@@ -43,6 +43,7 @@ public class Main {
 					miAutomata.Leer(palabra);
 				} catch (ErrorAutomata e) {
 					System.out.println(e.getMessage());
+					e.printStackTrace();
 				}
 			
 			myReader.close();
